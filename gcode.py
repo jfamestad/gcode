@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-safeZ = .5
-feedRate = 4
-plungeRate = 3
+safeZ = .1
+feedRate = 3
+plungeRate = 2
 toolDiameter = .25
-depthPerPass = toolDiameter / 2
+depthPerPass = min(.07, toolDiameter / 4)
 overlap = .1 # multiplier for overlap between passes such that stepover = toolDiameter * (1 - overlap)
 
 class Point:
@@ -108,6 +108,9 @@ class Bore:
         
 
 program = []
-program.extend(Bore(Point(0, 0, 0), 1, .5, toolDiameter).generate())
+program.extend(Bore(Point(1.25, 1.25, 0), .5, .35, toolDiameter).generate())
+print "%"
 for line in program:
     print line
+print "G0 Z1"
+print "%"
