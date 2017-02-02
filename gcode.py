@@ -19,7 +19,7 @@ class Arc:
         self.radius = radius
 
     def generate(self):
-        return "G2 X%f Y%f F%f" % (self.endPoint.x, self.endPoint.y, feedRate)
+        return "G2 X%f Y%f R%s F%f" % (self.endPoint.x, self.endPoint.y, self.radius, feedRate)
 
 class CounterArc:
     def __init__(self, endPoint, radius):
@@ -27,7 +27,7 @@ class CounterArc:
         self.radius = radius
 
     def generate(self):
-        return "G2 X%f Y%f F%f" % (self.endPoint.x, self.endPoint.y, feedRate)
+        return "G3 X%f Y%f R%s F%f" % (self.endPoint.x, self.endPoint.y, self.radius, feedRate)
 
 class Circle:
     def __init__(self, center, radius, toolDiameter=0, mode='OD'):
