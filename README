@@ -4,8 +4,7 @@ Gcode is dumped to stdout. Nothing else is written to stdout making it suitable 
 
 I am NOT responsible for any damage to you, your machine, your part, or anything else! Please use responsibly and at your own risk. Always review the output gcode for suitability and use a simulation tool to double check your work. If you are unsure about anything the only way to be absolutely safe is not to execute the generated code.
 
-All that said, I have executed some basic boring operations using toolpaths generated with this script successfully on a
-Taig Milling Machine using LinuxCNC.
+All that said, I have executed some basic boring operations using toolpaths generated with this script successfully on a Taig Milling Machine using LinuxCNC.
 
 Currently, the script takes no inputs. Some basic config is hardcoded in the first few lines and the bore to be cut is defined near the end. This is a starting point and I do plan on enhancing the UI once I get a few more shapes handled and potentially optimize some aspects of the toolpath that I think can be improved.
 
