@@ -42,15 +42,14 @@ class Circle:
         p4 = Point(self.center.x + self.radius, self.center.y, self.center.z)
         self.points = [p1, p2, p3, p4]
 
-    def generate(self, safeZ=True):
+    def generate(self, startFromSafeZ=True):
         commands = []
-        if safeZ:
+        if startFromSafeZ:
             commands.append("G0 Z%f" % safeZ)
             commands.append("G0 X%f Y%f" % (self.points[0].x, self.points[0].y))
             commands.append("G1 Z%f F%f" % (self.center.z, plungeRate))
         else:
-            commands.append("G1 X%f Y%f" % (self.points[0].x, self.points[0].y))
-            commands.append("G1 Z%f F%f" % (self.points[0].z, plungeRate))
+            commands.append("G1 X%f Y%f Z%f, F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
         commands.append(CounterArc(self.points[1], self.radius).generate())
         commands.append(CounterArc(self.points[2], self.radius).generate())
         commands.append(CounterArc(self.points[3], self.radius).generate())
@@ -73,10 +72,12 @@ class Disk:
             self.circles.append(c)
             nextRadius -= self.toolDiameter * (1-overlap)
 
-    def generate(self):
+    def generate(self, startFromSafeZ=True):
         commands = []
+        firstCircle = self.circles.pop(0)
+        commands.extend(firstCircle.generate(startFromSafeZ))
         for circle in self.circles:
-            commands.extend(circle.generate())
+            commands.extend(circle.generate(False))
         return commands
 
 class Bore:
@@ -100,12 +101,39 @@ class Bore:
         disks.append(Disk(bottomDiskCenter, self.radius, self.toolDiameter))
         self.disks = disks
 
-    def generate(self):
+    def generate(self, startFromSafeZ=True):
         commands = []
+        firstDisk = self.disks.pop(0)
+        commands.extend(firstDisk.generate(startFromSafeZ))
         for disk in self.disks:
-            commands.extend(disk.generate())
+            commands.extend(disk.generate(False))
         return commands
-        
+
+class Rectangle:
+    def __init__(self, lowerLeft, topRight):
+        self.lowerLeft = lowerLeft
+        self.topRight = topRight
+
+    @property
+    def boundaries(self):
+        return {
+                "minX": self.lowerLeft.x,
+                "minY": self.lowerLeft.y,
+                "maxX": self.topRight.x,
+                "maxY": self.topRight.y
+                }
+
+    def generateRoughInterior(self):
+        pass
+
+    def generatePerimeter(self):
+        pass
+
+    def generate(self):
+        pass
+
+def rapidTravel(point):
+    pass
 
 program = []
 program.extend(Bore(Point(1.25, 1.25, 0), .5, .35, toolDiameter).generate())
