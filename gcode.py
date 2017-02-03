@@ -135,10 +135,16 @@ class Rectangle:
 def rapidTravel(point):
     pass
 
-program = []
-program.extend(Bore(Point(1.25, 1.25, 0), .5, .5, toolDiameter).generate())
-print "%"
-for line in program:
-    print line
-print "G0 Z1"
-print "%"
+def generateProgram(operations):
+    program = []
+    for operation in operations:
+        program.extend(operation.generate())
+    print "%"
+    for line in program:
+        print line
+    print "G0 Z%f" % safeZ
+    print "%"
+
+operations = [Bore(Point(1.25, 1.25, 0), .5, .5, toolDiameter)]
+
+generateProgram(operations)
