@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
 safeZ = .1
-feedRate = 3
-plungeRate = 2
+feedRate = 6
+plungeRate = 3
 toolDiameter = .25
-depthPerPass = min(.07, toolDiameter / 4)
-overlap = .1 # multiplier for overlap between passes such that stepover = toolDiameter * (1 - overlap)
+depthPerPass = min(.05, toolDiameter / 4)
+overlap = .4 # multiplier for overlap between passes such that stepover = toolDiameter * (1 - overlap)
 
 class Point:
     def __init__(self, x, y, z):
@@ -49,7 +49,7 @@ class Circle:
             commands.append("G0 X%f Y%f" % (self.points[0].x, self.points[0].y))
             commands.append("G1 Z%f F%f" % (self.center.z, plungeRate))
         else:
-            commands.append("G1 X%f Y%f Z%f, F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
+            commands.append("G1 X%f Y%f Z%f F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
         commands.append(CounterArc(self.points[1], self.radius).generate())
         commands.append(CounterArc(self.points[2], self.radius).generate())
         commands.append(CounterArc(self.points[3], self.radius).generate())
@@ -136,7 +136,7 @@ def rapidTravel(point):
     pass
 
 program = []
-program.extend(Bore(Point(1.25, 1.25, 0), .5, .35, toolDiameter).generate())
+program.extend(Bore(Point(1.25, 1.25, 0), .5, .5, toolDiameter).generate())
 print "%"
 for line in program:
     print line
