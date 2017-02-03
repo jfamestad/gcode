@@ -1,1 +1,25 @@
-This program is intended to simplify the writing of gcode for CNC machine control. 
+This program is intended to simplify the writing of gcode for CNC machine control. It is capable of generating tool
+paths for basic boring operations.
+
+Gcode is dumped to stdout. Nothing else is written to stdout making it suitable for calling directly from LinuxCNC. 
+
+I am NOT responsible for any damage to you, your machine, your part, or anything else! Please use responsibly and at
+your own risk. Always review the output gcode for suitability and use a simulation tool to double check your work. If
+you are unsure about anything the only way to be absolutely safe is not to execute the generated code.
+
+All that said, I have executed some basic boring operations using toolpaths generated with this script successfully on a
+Taig Milling Machine using LinuxCNC.
+
+Currently, the script takes no inputs. Some basic config is hardcoded in the first few lines and the bore to be cut is
+defined near the end. This is a starting point and I do plan on enhancing the UI once I get a few more shapes handled
+and potentially optimize some aspects of the toolpath that I think can be improved.
+
+I am distributing this under the 3-clause BSD license so you are free to use the software as you please with or without
+modification. Your contributions are welcome and encouraged so if you make some useful changes, please contribute them
+back! If you use it to do something cool, I would love to hear about it. 
+
+Happy Machining!
+
+Josh
+jfamestad@gmail.com
+www.fnhack.com
