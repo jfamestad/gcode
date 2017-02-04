@@ -137,6 +137,24 @@ def goTo(point):
         command = "%s Z%f" % (command, point.z)
     return command
 
+def gCommand(g, x=None, y=None, z=None, point=None, f=None, r=None):
+    if point:
+        x = point.x
+        y = point.y
+        y = point.z
+    command = "G%d" % g
+    if x:
+        command = "%s X%f" % (command, point.x)
+    if y:
+        command = "%s Y%f" % (command, point.y)
+    if z:
+        command = "%s Z%f" % (command, point.z)
+    if r:
+        command = "%s R%f" % (command, r)
+    if f:
+        command = "%s F%f" % (command, f)
+    return command
+
 def rapidTravel(point):
     return(
             goTo(Point(z=safeZ)),
