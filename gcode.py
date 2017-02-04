@@ -3,7 +3,7 @@
 from config import *
 
 class Point:
-    def __init__(self, x, y, z):
+    def __init__(self, x=None, y=None, z=None):
         self.x = x
         self.y = y
         self.z = z
@@ -127,15 +127,30 @@ class Rectangle:
     def generate(self):
         pass
 
+def goTo(point):
+    command = "G0"
+    if point.x:
+        command = "%s X%f" % (command, point.x)
+    if point.y:
+        command = "%s Y%f" % (command, point.y)
+    if point.z:
+        command = "%s Z%f" % (command, point.z)
+    return command
+
 def rapidTravel(point):
-    pass
+    return(
+            goTo(Point(z=safeZ)),
+            goTo(Point(point.x, point.y, safeZ)),
+            goTo(point),
+          )
 
 def generateProgram(operations):
     program = []
     for operation in operations:
-        program.extend(operation.generate())
+        program.extend(operation)
     print "%"
+    print goTo(Point(z=safeZ))
     for line in program:
         print line
-    print "G0 Z%f" % safeZ
+    print goTo(Point(z=safeZ))
     print "%"
