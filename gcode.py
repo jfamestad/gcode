@@ -1,11 +1,6 @@
 #!/usr/bin/python
 
-safeZ = .1
-feedRate = 6
-plungeRate = 3
-toolDiameter = .25
-depthPerPass = min(.05, toolDiameter / 4)
-overlap = .4 # multiplier for overlap between passes such that stepover = toolDiameter * (1 - overlap)
+from config import *
 
 class Point:
     def __init__(self, x, y, z):
@@ -144,7 +139,3 @@ def generateProgram(operations):
         print line
     print "G0 Z%f" % safeZ
     print "%"
-
-operations = [Bore(Point(1.25, 1.25, 0), .5, .5, toolDiameter)]
-
-generateProgram(operations)
