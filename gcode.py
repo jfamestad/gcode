@@ -14,7 +14,7 @@ class Arc:
         self.radius = radius
 
     def generate(self):
-        return "G2 X%f Y%f R%s F%f" % (self.endPoint.x, self.endPoint.y, self.radius, feedRate)
+        return gCommand(2, point=self.endPoint, r=self.radius, f=feedRate)
 
 class CounterArc:
     def __init__(self, endPoint, radius):
@@ -22,7 +22,7 @@ class CounterArc:
         self.radius = radius
 
     def generate(self):
-        return "G3 X%f Y%f R%s F%f" % (self.endPoint.x, self.endPoint.y, self.radius, feedRate)
+        return gCommand(3, point=self.endPoint, r=self.radius, f=feedRate)
 
 class Circle:
     def __init__(self, center, radius, toolDiameter=0, mode='OD'):
@@ -40,11 +40,15 @@ class Circle:
     def generate(self, startFromSafeZ=True):
         commands = []
         if startFromSafeZ:
-            commands.append("G0 Z%f" % safeZ)
-            commands.append("G0 X%f Y%f" % (self.points[0].x, self.points[0].y))
-            commands.append("G1 Z%f F%f" % (self.center.z, plungeRate))
+            #commands.append("G0 Z%f" % safeZ)
+            commands.append(gCommand(0, z=safeZ))
+            #commands.append("G0 X%f Y%f" % (self.points[0].x, self.points[0].y))
+            commands.append(gCommand(0, x=self.points[0].x, y=self.points[0].y))
+            #commands.append("G1 Z%f F%f" % (self.center.z, plungeRate))
+            commands.append(gCommand(1, z=self.center.z, f=plungeRate))
         else:
-            commands.append("G1 X%f Y%f Z%f F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
+            #commands.append("G1 X%f Y%f Z%f F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
+            commands.append(gCommand(1, point=self.points[0], f=feedRate))
         commands.append(CounterArc(self.points[1], self.radius).generate())
         commands.append(CounterArc(self.points[2], self.radius).generate())
         commands.append(CounterArc(self.points[3], self.radius).generate())
@@ -128,27 +132,20 @@ class Rectangle:
         pass
 
 def goTo(point):
-    command = "G0"
-    if point.x:
-        command = "%s X%f" % (command, point.x)
-    if point.y:
-        command = "%s Y%f" % (command, point.y)
-    if point.z:
-        command = "%s Z%f" % (command, point.z)
-    return command
+    return gCommand(0, point=point)
 
 def gCommand(g, x=None, y=None, z=None, point=None, f=None, r=None):
     if point:
         x = point.x
         y = point.y
-        y = point.z
+        z = point.z
     command = "G%d" % g
     if x:
-        command = "%s X%f" % (command, point.x)
+        command = "%s X%f" % (command, x)
     if y:
-        command = "%s Y%f" % (command, point.y)
+        command = "%s Y%f" % (command, y)
     if z:
-        command = "%s Z%f" % (command, point.z)
+        command = "%s Z%f" % (command, z)
     if r:
         command = "%s R%f" % (command, r)
     if f:
