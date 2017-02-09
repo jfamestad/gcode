@@ -5,7 +5,7 @@ from config import *
 
 #define operations to run here
 operations = [
-                Bore(Point(1.25, 1.25, 0), .5, .5, toolDiameter).generate(),
+                Bore(Point(1.25, 1.25, 0), 1, .25, toolDiameter).generate(),
                 #rapidTravel(Point(-3, 1, 1)),
                 ]
 

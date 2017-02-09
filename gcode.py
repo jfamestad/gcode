@@ -170,7 +170,7 @@ class Rectangle:
         return self.commands
 
 def feed(point):
-    return gCommand(1, point=point)
+    return gCommand(1, point=point, f=feedRate)
 
 def goTo(point):
     return gCommand(0, point=point)
