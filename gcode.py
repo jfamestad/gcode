@@ -1,12 +1,32 @@
 #!/usr/bin/python
 
+import inspect
+
 from config import *
+
+verbose = True
+log_filename = 'gcode.log'
+
+def log(message):
+    with open(log_filename, 'w') as log_file:
+        log_file.write(message)
+
 
 class Point:
     def __init__(self, x=None, y=None, z=None):
         self.x = x
         self.y = y
         self.z = z
+
+    def __str__(self):
+        string = ''
+        if self.x:
+            string += "X%f " % self.x
+        if self.y:
+            string += "Y%f " % self.y
+        if self.z:
+            string += "Z%f" % self.z
+        return string
 
 class Arc:
     def __init__(self, endPoint, radius):
@@ -40,14 +60,10 @@ class Circle:
     def generate(self, startFromSafeZ=True):
         commands = []
         if startFromSafeZ:
-            #commands.append("G0 Z%f" % safeZ)
             commands.append(gCommand(0, z=safeZ))
-            #commands.append("G0 X%f Y%f" % (self.points[0].x, self.points[0].y))
             commands.append(gCommand(0, x=self.points[0].x, y=self.points[0].y))
-            #commands.append("G1 Z%f F%f" % (self.center.z, plungeRate))
             commands.append(gCommand(1, z=self.center.z, f=plungeRate))
         else:
-            #commands.append("G1 X%f Y%f Z%f F%f" % (self.points[0].x, self.points[0].y, self.points[0].z, feedRate))
             commands.append(gCommand(1, point=self.points[0], f=feedRate))
         commands.append(CounterArc(self.points[1], self.radius).generate())
         commands.append(CounterArc(self.points[2], self.radius).generate())
@@ -109,9 +125,11 @@ class Bore:
         return commands
 
 class Rectangle:
-    def __init__(self, lowerLeft, topRight):
+    def __init__(self, lowerLeft, topRight, toolDiameter):
         self.lowerLeft = lowerLeft
         self.topRight = topRight
+        self.toolDiameter = toolDiameter
+        self.commands = []
 
     @property
     def boundaries(self):
@@ -122,14 +140,37 @@ class Rectangle:
                 "maxY": self.topRight.y
                 }
 
-    def generateRoughInterior(self):
-        pass
+    def generateRoughInterior(self, startFromSafeZ=True):
+        log("generating toolpath to rough interior")
+        if startFromSafeZ:
+            self.commands.append(goTo(Point(z=safeZ)))
+            self.commands.append(goTo(Point(x=self.lowerLeft.x, y=self.lowerLeft.y, z=safeZ)))
+        self.commands.append(feed(self.lowerLeft))
+        y = self.boundaries['minY'] + self.toolDiameter / 2
+        while y < self.boundaries['maxY'] - self.toolDiameter / 2:
+            self.commands.append(feed(Point(x=(self.boundaries['minX'] + self.toolDiameter / 2), y=y, z=0)))
+            self.commands.append(feed(Point(x=(self.boundaries['maxX'] - self.toolDiameter / 2), y=y, z=0)))
+            y += self.toolDiameter * ( 1 - overlap )
+        log("roughing toolpath: %s" % self.commands)
+        return self.commands
+               
+    def generatePerimeter(self, startFromSafeZ=True):
+        if startFromSafeZ:
+            self.commands.append(goTo(Point(z=safeZ)))
+        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['maxY'])))
+        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['minY'])))
+        self.commands.append(feed(Point(self.boundaries['minX'], self.boundaries['minY'])))
+        self.commands.append(feed(Point(self.boundaries['minX'], self.boundaries['maxY'])))
+        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['maxY'])))
+        return self.commands
 
-    def generatePerimeter(self):
-        pass
+    def generate(self, startFromSafeZ=True):
+        self.generateRoughInterior(startFromSafeZ)
+        self.generatePerimeter(startFromSafeZ)
+        return self.commands
 
-    def generate(self):
-        pass
+def feed(point):
+    return gCommand(1, point=point)
 
 def goTo(point):
     return gCommand(0, point=point)
@@ -155,7 +196,8 @@ def gCommand(g, x=None, y=None, z=None, point=None, f=None, r=None):
 def rapidTravel(point):
     return(
             goTo(Point(z=safeZ)),
-            goTo(Point(point.x, point.y, safeZ)),
+        
+        goTo(Point(point.x, point.y, safeZ)),
             goTo(point),
           )
 

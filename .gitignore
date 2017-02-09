@@ -1,3 +1,4 @@
 *.ngc
 *.gcode
 *.pyc
+*.log
