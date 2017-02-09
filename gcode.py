@@ -167,7 +167,7 @@ class Rectangle:
 
     def generate(self, startFromSafeZ=True):
         self.generateRoughInterior(startFromSafeZ)
-        self.generatePerimeter(startFromSafeZ)
+        self.generatePerimeter(False)
         return self.commands
 
 def feed(point):
