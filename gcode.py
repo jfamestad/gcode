@@ -129,6 +129,7 @@ class Rectangle:
         self.lowerLeft = lowerLeft
         self.topRight = topRight
         self.toolDiameter = toolDiameter
+        self.z = topRight.z
         self.commands = []
 
     @property
@@ -148,8 +149,8 @@ class Rectangle:
         self.commands.append(feed(self.lowerLeft))
         y = self.boundaries['minY'] + self.toolDiameter / 2
         while y < self.boundaries['maxY'] - self.toolDiameter / 2:
-            self.commands.append(feed(Point(x=(self.boundaries['minX'] + self.toolDiameter / 2), y=y, z=0)))
-            self.commands.append(feed(Point(x=(self.boundaries['maxX'] - self.toolDiameter / 2), y=y, z=0)))
+            self.commands.append(feed(Point(x=(self.boundaries['minX'] + self.toolDiameter / 2), y=y, z=self.z)))
+            self.commands.append(feed(Point(x=(self.boundaries['maxX'] - self.toolDiameter / 2), y=y, z=self.z)))
             y += self.toolDiameter * ( 1 - overlap )
         log("roughing toolpath: %s" % self.commands)
         return self.commands
@@ -157,11 +158,11 @@ class Rectangle:
     def generatePerimeter(self, startFromSafeZ=True):
         if startFromSafeZ:
             self.commands.append(goTo(Point(z=safeZ)))
-        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['maxY'])))
-        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['minY'])))
-        self.commands.append(feed(Point(self.boundaries['minX'], self.boundaries['minY'])))
-        self.commands.append(feed(Point(self.boundaries['minX'], self.boundaries['maxY'])))
-        self.commands.append(feed(Point(self.boundaries['maxX'], self.boundaries['maxY'])))
+        self.commands.append(feed(Point(x=self.boundaries['maxX'], y=self.boundaries['maxY'], z=self.z)))
+        self.commands.append(feed(Point(x=self.boundaries['maxX'], y=self.boundaries['minY'], z=self.z)))
+        self.commands.append(feed(Point(x=self.boundaries['minX'], y=self.boundaries['minY'], z=self.z)))
+        self.commands.append(feed(Point(x=self.boundaries['minX'], y=self.boundaries['maxY'], z=self.z)))
+        self.commands.append(feed(Point(x=self.boundaries['maxX'], y=self.boundaries['maxY'], z=self.z)))
         return self.commands
 
     def generate(self, startFromSafeZ=True):
@@ -181,15 +182,15 @@ def gCommand(g, x=None, y=None, z=None, point=None, f=None, r=None):
         y = point.y
         z = point.z
     command = "G%d" % g
-    if x:
+    if not x == None:
         command = "%s X%f" % (command, x)
-    if y:
+    if not y == None:
         command = "%s Y%f" % (command, y)
-    if z:
+    if not z == None:
         command = "%s Z%f" % (command, z)
-    if r:
+    if not r == None:
         command = "%s R%f" % (command, r)
-    if f:
+    if not f == None:
         command = "%s F%f" % (command, f)
     return command
 
@@ -206,6 +207,7 @@ def generateProgram(operations):
     for operation in operations:
         program.extend(operation)
     print "%"
+    print "G20"
     print goTo(Point(z=safeZ))
     for line in program:
         print line
